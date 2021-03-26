@@ -3,19 +3,9 @@ from . import models
 
 
 class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.User
-        fields = [
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "avatar",
-            "superhost",
-        ]
 
+    password = serializers.CharField(write_only=True)
 
-class ReadUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = [
@@ -26,19 +16,16 @@ class ReadUserSerializer(serializers.ModelSerializer):
             "email",
             "avatar",
             "superhost",
-            "favs",
+            "password",
         ]
-
-
-class WriteUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.User
-        fields = [
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-        ]
+        read_only_fields = ["id", "avatar", "superhost"]
 
     def validate_first_name(self, value):
         return value.capitalize()
+
+    def create(self, validated_data):
+        password = validated_data.get("password")
+        user = super().create(validated_data)
+        user.set_password(password)
+        user.save()
+        return user

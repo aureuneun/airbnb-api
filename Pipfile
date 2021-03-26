@@ -13,6 +13,7 @@ pillow = "*"
 django-seed = "*"
 faker = "*"
 djangorestframework = "*"
+pyjwt = "*"
 
 [requires]
 python_version = "3.7"
