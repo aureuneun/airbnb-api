@@ -3,9 +3,16 @@ from users.serializers import UserSerializer
 from . import models
 
 
+class PhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Photo
+        exclude = ["room"]
+
+
 class RoomSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
+    photos = PhotoSerializer(read_only=True, many=True)
     is_fav = serializers.SerializerMethodField()
 
     class Meta:

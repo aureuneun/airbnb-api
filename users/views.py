@@ -39,13 +39,15 @@ class UserViewSet(ModelViewSet):
             encoded_jwt = jwt.encode(
                 {"pk": user.pk}, settings.SECRET_KEY, algorithm="HS256"
             )
-            return Response({"token": encoded_jwt})
+            return Response({"token": encoded_jwt, "id": user.pk})
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     @action(detail=True)
     def favs(self, request, pk):
         user = self.get_object()
-        serializer = RoomSerializer(user.favs.all(), many=True).data
+        serializer = RoomSerializer(
+            user.favs.all(), many=True, context={"request": request}
+        ).data
         return Response(serializer)
 
     @favs.mapping.put
@@ -59,7 +61,11 @@ class UserViewSet(ModelViewSet):
                     user.favs.remove(room)
                 else:
                     user.favs.add(room)
-                return Response(RoomSerializer(user.favs.all(), many=True).data)
+                return Response(
+                    RoomSerializer(
+                        user.favs.all(), many=True, context={"request": request}
+                    ).data
+                )
             except Room.DoesNotExist:
                 pass
         return Response(status=status.HTTP_400_BAD_REQUEST)
